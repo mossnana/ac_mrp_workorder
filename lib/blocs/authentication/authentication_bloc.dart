@@ -18,7 +18,6 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
   @override
   AuthenticationState get initialState => AuthenticationUninitialized();
 
-
   @override
   Stream<AuthenticationState> mapEventToState(
       AuthenticationEvent event,
@@ -27,7 +26,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       final hasToken = await userRepository.getSessionInfo();
       if (!hasToken.hasError()) {
         final odooUser = await userRepository.odooUser;
-        yield AuthenticationAuthenticated(odooUser: odooUser);
+        yield AuthenticationAuthenticated(odooUser: odooUser, odooClient: userRepository);
       } else {
         yield AuthenticationUnauthenticated();
       }
@@ -36,7 +35,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     if (event is LoggedIn) {
       yield AuthenticationLoading();
       final odooUser = await userRepository.odooUser;
-      yield AuthenticationAuthenticated(odooUser: odooUser);
+      yield AuthenticationAuthenticated(odooUser: odooUser, odooClient: userRepository);
     }
 
     if (event is LoggedOut) {

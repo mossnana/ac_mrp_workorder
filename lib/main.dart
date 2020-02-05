@@ -30,7 +30,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(userRepository.getDatabases());
     return MaterialApp(
       home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
         builder: (context, state) {

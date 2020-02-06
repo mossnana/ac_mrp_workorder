@@ -1,12 +1,21 @@
 import 'dart:convert';
+import 'package:ac_mrp_workorder/models/data_models.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:odoo_api/odoo_api.dart';
+import 'package:odoo_api/odoo_api_connector.dart';
 import 'package:odoo_api/odoo_user_response.dart';
 
 abstract class FetchDataState extends Equatable {
   @override
   List<Object> get props => [];
+
+  dynamic decodedResult(OdooResponse result) {
+    var response = result.getResult();
+    var data = json.encode(response['records']);
+    var decoded = json.decode(data);
+    return decoded;
+  }
 }
 
 // Work Order
@@ -40,17 +49,107 @@ class FetchWorkOrderSuccess extends FetchDataState {
   @override
   String toString() => 'Fetch Work Orders Data Success ...';
 
-  Stream<dynamic> readAll() async* {
+  Stream<dynamic> readAllTest() async* {
     var result = await _odooClient.searchRead('mrp.workorder', [], ['id','name'], limit: 1);
     if (!result.hasError()) {
-      var response = result.getResult();
-      var data = json.encode(response['records']);
-      var decoded = json.decode(data);
+      var decoded = decodedResult(result);
       yield decoded;
     } else {
       print("Can't Streaming data from server.");
     }
   }
+
+  Stream<dynamic> readAll() async* {
+    var result = await _odooClient.searchRead(
+        'mrp.workorder',
+        [],
+        ['id','name','active_move_line_ids','qty_produced','workcenter_id'],
+    );
+    if (!result.hasError()) {
+      var decoded = decodedResult(result);
+      MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
+      for(var rec in decoded) {
+        MrpWorkOrder workOrder = MrpWorkOrder(
+          id: rec['id'],
+          name: rec['name']
+        );
+        workOrder.productId = await mapProduct(rec['product_id']);
+        workOrderIds.add(workOrder);
+      }
+      print(workOrderIds);
+      yield workOrderIds;
+    } else {
+      print("Can't Streaming data from server.");
+    }
+  }
+
+  Future<dynamic> mapStockMoveLine(ids) async {
+    var result = await _odooClient.searchRead(
+        'stock.move.line',
+        [['id', 'in', ids]],
+        ['id','product_id','lot_ids','qty_done','qty_lot', 'uom_id']
+    );
+    if (!result.hasError()) {
+      // TODO: Get Move Line ids
+      var decoded = decodedResult(result);
+      StockMoveLineCollection moveLines = StockMoveLineCollection();
+      for(var rec in decoded) {
+        StockMoveLine moveLine = StockMoveLine(
+          id: rec['id'],
+        );
+        moveLine.product = await mapProduct(rec['product_id']);
+        moveLine.lotIds = await mapLotId(rec['lot_ids']);
+        moveLines.add(moveLine);
+      }
+      return moveLines;
+    } else {
+      return false;
+    }
+  }
+
+  Future<dynamic> mapLotId(ids) async {
+    // TODO: Get Lot data
+    var result = await _odooClient.searchRead(
+        'stock.move.line',
+        [['id', 'in', ids]],
+        ['id','name','product_id','product_qty','product_uom']
+    );
+    if (!result.hasError()) {
+      var decoded = decodedResult(result);
+      StockProductionLotCollection lotIds = StockProductionLotCollection();
+      for(var rec in decoded) {
+        StockProductionLot newLot = new StockProductionLot(
+          id: rec['id'],
+          name: rec['name'],
+          productQty: rec['productQty'],
+        );
+        newLot.product = await mapProduct(rec['product_id']);
+        lotIds.add(newLot);
+      }
+      return lotIds;
+    } else {
+      return false;
+    }
+  }
+
+  Future<dynamic> mapProduct(id) async {
+    var result = await _odooClient.searchRead(
+        'product.product',
+        [['id', '=', id]],
+        ['id','name']
+    );
+    if (!result.hasError()) {
+      var decoded = decodedResult(result);
+      ProductProduct product = ProductProduct(
+        id: decoded[0]['id'],
+        name: decoded[0]['name'],
+      );
+      return product;
+    } else {
+      return false;
+    }
+  }
+
 }
 
 class FetchWorkOrderFailed extends FetchDataState {

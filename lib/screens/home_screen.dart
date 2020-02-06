@@ -6,9 +6,7 @@ import 'package:ac_mrp_workorder/screens/workorder_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:odoo_api/odoo_api.dart';
-import 'package:odoo_api/odoo_api_connector.dart';
 import 'package:odoo_api/odoo_user_response.dart';
-import '../blocs/authentication/authentication_bloc.dart';
 
 class HomeScreen extends StatefulWidget {
   final OdooClient _userRepository;

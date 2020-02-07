@@ -1,14 +1,8 @@
 import 'package:ac_mrp_workorder/blocs/fetch_data/fetch_data_state.dart';
+import 'package:ac_mrp_workorder/models/navigate_arguments.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:ac_mrp_workorder/blocs/fetch_data/fetch_data_bloc.dart';
-import 'package:ac_mrp_workorder/blocs/fetch_data/fetch_data_event.dart';
-import 'package:ac_mrp_workorder/screens/workorder_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:odoo_api/odoo_api.dart';
-import 'package:odoo_api/odoo_api_connector.dart';
-import 'package:odoo_api/odoo_user_response.dart';
 import '../blocs/authentication/authentication_bloc.dart';
 
 class WorkOrderScreen extends StatefulWidget {
@@ -16,7 +10,6 @@ class WorkOrderScreen extends StatefulWidget {
 }
 
 class _WorkOrderScreen extends State<WorkOrderScreen> {
-  var list = [];
 
   @override
   void initState() {
@@ -33,18 +26,17 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
         if (state is FetchUserSuccess) {
           return Container(
               child: StreamBuilder(
-                stream: state.info(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasError) {
-                    return Text('SnapShot Error');
-                  } else if (snapshot.hasData) {
-                    print(snapshot.data);
-                    return Text(snapshot.data['name']);
-                  } else {
-                    return Text("Loading ... in Stream Builder");
-                  }
-                },
-              ));
+            stream: state.info(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text('SnapShot Error');
+              } else if (snapshot.hasData) {
+                return Text(snapshot.data['name']);
+              } else {
+                return Text("Loading ... in Stream Builder");
+              }
+            },
+          ));
         } else {
           return Container(child: Text('#####'));
         }
@@ -55,22 +47,40 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
       bloc: BlocProvider.of<FetchWorkOrderBloc>(context),
       builder: (context, state) {
         if (state is FetchWorkOrderSuccess) {
-          return StreamBuilder(
+          return StreamBuilder<dynamic>(
             stream: state.readAll(),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                Scaffold.of(context).showSnackBar(
-                    SnackBar(
-                      content: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text('Error to fetching data'),
-                          Icon(Icons.file_download)],
-                      ),
-                      backgroundColor: Colors.blue,
-                    )
-                );
-                return Container(child: Text('xxx'),);
+                return CustomScrollView(slivers: <Widget>[
+                  SliverAppBar(
+                    pinned: true,
+                    expandedHeight: 150.0,
+                    flexibleSpace: FlexibleSpaceBar(
+                      background: Image.network(
+                          'http://naraipak.com/uploads/about/TKy31M7S05PEsStaPKamS1YjGVpCsZLt.png',
+                          fit: BoxFit.cover),
+                      title: Text('Work Orders'),
+                    ),
+                  ),
+                  SliverGrid(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 500.0,
+                      mainAxisSpacing: 10.0,
+                      crossAxisSpacing: 10.0,
+                      childAspectRatio: 2.0,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Container(
+                          alignment: Alignment.center,
+                          color: Colors.grey,
+                          child: CircularProgressIndicator(),
+                        );
+                      },
+                      childCount: 1,
+                    ),
+                  )
+                ]);
               } else {
                 switch (snapshot.connectionState) {
                   case ConnectionState.done:
@@ -88,23 +98,54 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
                         ),
                         SliverGrid(
                           gridDelegate:
-                          SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 300.0,
-                            mainAxisSpacing: 20.0,
-                            crossAxisSpacing: 20.0,
-                            childAspectRatio: 1.0,
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 500.0,
+                            mainAxisSpacing: 10.0,
+                            crossAxisSpacing: 10.0,
+                            childAspectRatio: 2.0,
                           ),
                           delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
-                              return Container(
-                                alignment: Alignment.center,
-                                color: Colors.grey,
-                                // child: Text(snapshot.data[index]['name']),
-                                child: Text('xxx'),
+                            (BuildContext context, int index) {
+                              return GestureDetector(
+                                child: Container(
+                                  margin: EdgeInsets.all(10.0),
+                                  padding: EdgeInsets.all(10.0),
+                                  key: Key(
+                                      snapshot.data.datas[index].id.toString()),
+                                  alignment: Alignment.center,
+                                  color: snapshot.data.datas[index].stateColor,
+                                  // child: Text(snapshot.data.datas[index].name),
+                                  child: Column(
+                                    children: <Widget>[
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Text(
+                                            snapshot.data.datas[index].name,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/workOrderItem',
+                                    arguments: WorkOrderArgument(
+                                      id: snapshot.data.datas[index].id,
+                                      name: snapshot.data.datas[index].name,
+                                    )
+                                  );
+                                },
                               );
                             },
                             // childCount: snapshot.data.length,
-                            childCount: 5,
+                            childCount: snapshot.data.datas.length,
                           ),
                         )
                       ]);
@@ -125,21 +166,21 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
                         ),
                         SliverGrid(
                           gridDelegate:
-                          SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 300.0,
-                            mainAxisSpacing: 20.0,
-                            crossAxisSpacing: 20.0,
-                            childAspectRatio: 1.0,
+                              SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 500.0,
+                                mainAxisSpacing: 10.0,
+                                crossAxisSpacing: 10.0,
+                                childAspectRatio: 2.0,
                           ),
                           delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int index) {
+                            (BuildContext context, int index) {
                               return Container(
                                 alignment: Alignment.center,
                                 color: Colors.grey,
                                 child: CircularProgressIndicator(),
                               );
                             },
-                            childCount: 8,
+                            childCount: 1,
                           ),
                         )
                       ]);
@@ -149,19 +190,9 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
             },
           );
         } else {
-          Scaffold.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CircularProgressIndicator(),
-                    Text('Fetching data ...'),
-                  ]
-                ),
-                backgroundColor: Colors.blue,
-              )
+          return Container(
+            child: Text('xxx'),
           );
-          return Container(child: Text('xxx'),);
         }
       },
     );

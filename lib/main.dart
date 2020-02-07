@@ -1,4 +1,5 @@
 import 'package:ac_mrp_workorder/delegates/bloc_delegate.dart';
+import 'package:ac_mrp_workorder/screens/workorder_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:odoo_api/odoo_api.dart';
@@ -30,24 +31,35 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: BlocBuilder<AuthenticationBloc, AuthenticationState>(
-        builder: (context, state) {
-          print(state);
-          if (state is AuthenticationUninitialized) {
+      initialRoute: '/',
+      routes: {
+        '/': (context) => BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            if (state is AuthenticationUninitialized) {
+              return SplashPage();
+            }
+            if (state is AuthenticationAuthenticated) {
+              return HomeScreen(userRepository: userRepository);
+            }
+            if (state is AuthenticationUnauthenticated) {
+              return LoginScreen(userRepository: userRepository);
+            }
+            if (state is AuthenticationLoading) {
+              return LoadingIndicator();
+            }
             return SplashPage();
-          }
-          if (state is AuthenticationAuthenticated) {
-            return HomeScreen(userRepository: userRepository);
-          }
-          if (state is AuthenticationUnauthenticated) {
-            return LoginScreen(userRepository: userRepository);
-          }
-          if (state is AuthenticationLoading) {
-            return LoadingIndicator();
-          }
-          return SplashPage();
-        },
-      ),
+          },
+        ),
+        '/workOrderItem': (context) => BlocBuilder<AuthenticationBloc, AuthenticationState>(
+          builder: (context, state) {
+            debugPrint('state is $state');
+            if (state is AuthenticationAuthenticated) {
+              return WorkOrderFormScreen(userRepository: userRepository);
+            }
+            return SplashPage();
+          },
+        ),
+      },
     );
   }
 }

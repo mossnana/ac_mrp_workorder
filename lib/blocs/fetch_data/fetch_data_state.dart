@@ -63,23 +63,26 @@ class FetchWorkOrderSuccess extends FetchDataState {
     var result = await _odooClient.searchRead(
         'mrp.workorder',
         [],
-        ['id','name','active_move_line_ids','qty_produced','workcenter_id'],
+        ['id','name','active_move_line_ids','qty_produced','workcenter_id','product_id', 'state'],
     );
+    MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
     if (!result.hasError()) {
       var decoded = decodedResult(result);
-      MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
+      yield decoded;
       for(var rec in decoded) {
+        print(rec);
         MrpWorkOrder workOrder = MrpWorkOrder(
           id: rec['id'],
-          name: rec['name']
+          name: rec['name'],
+          productId: rec['product_id'],
+          state: rec['state'],
         );
-        workOrder.productId = await mapProduct(rec['product_id']);
+        workOrder.setStateColor = rec['state'];
         workOrderIds.add(workOrder);
       }
-      print(workOrderIds);
       yield workOrderIds;
     } else {
-      print("Can't Streaming data from server.");
+      yield workOrderIds;
     }
   }
 
@@ -123,7 +126,7 @@ class FetchWorkOrderSuccess extends FetchDataState {
           name: rec['name'],
           productQty: rec['productQty'],
         );
-        newLot.product = await mapProduct(rec['product_id']);
+        newLot.product = await mapProduct(rec['product_id'][0]);
         lotIds.add(newLot);
       }
       return lotIds;
@@ -133,16 +136,19 @@ class FetchWorkOrderSuccess extends FetchDataState {
   }
 
   Future<dynamic> mapProduct(id) async {
+    print('>>>>>> 1');
+    print(id);
     var result = await _odooClient.searchRead(
         'product.product',
         [['id', '=', id]],
         ['id','name']
     );
+    print(result);
     if (!result.hasError()) {
       var decoded = decodedResult(result);
       ProductProduct product = ProductProduct(
-        id: decoded[0]['id'],
-        name: decoded[0]['name'],
+        id: decoded[0],
+        name: decoded[1],
       );
       return product;
     } else {

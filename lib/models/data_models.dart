@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 import 'data_types.dart';
@@ -98,16 +99,40 @@ class StockMoveLineCollection extends Collection {
 class MrpWorkOrder extends Document {
   int id;
   String name;
-  ProductProduct productId;
+  String state;
+  MaterialColor stateColor;
   int workCenterId;
+  List<dynamic> productId;
   List<StockMoveLine> activeMoveLineIds;
 
   MrpWorkOrder({
     @required this.id,
     @required this.name,
     this.workCenterId,
+    this.productId,
+    this.state,
   });
 
+  set setStateColor(state) {
+    switch(state){
+      case 'done': {
+        stateColor = Colors.red;
+        break;
+      }
+      case 'progress': {
+        stateColor = Colors.deepOrange;
+        break;
+      }
+      case 'done': {
+        stateColor = Colors.green;
+        break;
+      }
+      default: {
+        stateColor = Colors.purple;
+        break;
+      }
+    }
+  }
 }
 
 class MrpWorkOrderCollection extends Collection {

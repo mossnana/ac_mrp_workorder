@@ -77,14 +77,20 @@ class StockProductionLotCollection extends Collection {
 
 class StockMoveLine extends Document {
   int id;
-  ProductProduct product;
   StockProductionLotCollection lotIds;
+  ProductProduct product = new ProductProduct();
   dynamic qtyDone;
 
   StockMoveLine({
     @required this.id,
     this.qtyDone,
   });
+
+  set setProduct(productList) {
+    product.id = productList[0];
+    product.name = productList[1];
+  }
+
 }
 
 class StockMoveLineCollection extends Collection {
@@ -93,6 +99,10 @@ class StockMoveLineCollection extends Collection {
 
   void add(StockMoveLine data) {
     datas.add(data);
+  }
+
+  int count() {
+    return datas.length != 0 ? datas.length : 0;
   }
 }
 
@@ -103,7 +113,7 @@ class MrpWorkOrder extends Document {
   MaterialColor stateColor;
   int workCenterId;
   List<dynamic> productId;
-  List<StockMoveLine> activeMoveLineIds;
+  StockMoveLineCollection activeMoveLineIds;
 
   MrpWorkOrder({
     @required this.id,
@@ -139,8 +149,8 @@ class MrpWorkOrderCollection extends Collection {
   String model = 'mrp.workorder';
   List<MrpWorkOrder> datas = [];
 
-  void add(MrpWorkOrder data) {
-    datas.add(data);
+  void add(MrpWorkOrder recentData) {
+    datas.add(recentData);
   }
 
   @override

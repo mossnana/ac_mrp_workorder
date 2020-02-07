@@ -52,7 +52,6 @@ class App extends StatelessWidget {
         ),
         '/workOrderItem': (context) => BlocBuilder<AuthenticationBloc, AuthenticationState>(
           builder: (context, state) {
-            debugPrint('state is $state');
             if (state is AuthenticationAuthenticated) {
               return WorkOrderFormScreen(userRepository: userRepository);
             }

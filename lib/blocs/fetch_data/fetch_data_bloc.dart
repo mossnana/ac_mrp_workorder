@@ -41,7 +41,6 @@ class FetchWorkOrderBloc extends Bloc<FetchDataEvent, FetchDataState> {
 
   @override
   Stream<FetchDataState> mapEventToState(FetchDataEvent event) async* {
-    print(event is FetchWorkOrderStarted);
     if(event is FetchWorkOrderStarted) {
       yield FetchWorkOrderLoading();
       if(true) {

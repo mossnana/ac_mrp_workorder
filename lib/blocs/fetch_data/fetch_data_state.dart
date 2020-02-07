@@ -62,7 +62,7 @@ class FetchWorkOrderSuccess extends FetchDataState {
   Stream<dynamic> readAll() async* {
     var result = await _odooClient.searchRead(
         'mrp.workorder',
-        [],
+        [['state','in',['ready','progress']]],
         ['id','name','active_move_line_ids','qty_produced','workcenter_id','product_id', 'state'],
     );
     MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
@@ -70,7 +70,6 @@ class FetchWorkOrderSuccess extends FetchDataState {
       var decoded = decodedResult(result);
       yield decoded;
       for(var rec in decoded) {
-        print(rec);
         MrpWorkOrder workOrder = MrpWorkOrder(
           id: rec['id'],
           name: rec['name'],
@@ -78,6 +77,7 @@ class FetchWorkOrderSuccess extends FetchDataState {
           state: rec['state'],
         );
         workOrder.setStateColor = rec['state'];
+        workOrder.activeMoveLineIds = await mapStockMoveLine(rec['active_move_line_ids']);
         workOrderIds.add(workOrder);
       }
       yield workOrderIds;
@@ -86,27 +86,26 @@ class FetchWorkOrderSuccess extends FetchDataState {
     }
   }
 
-  Future<dynamic> mapStockMoveLine(ids) async {
+  Future<StockMoveLineCollection> mapStockMoveLine(ids) async {
     var result = await _odooClient.searchRead(
         'stock.move.line',
         [['id', 'in', ids]],
         ['id','product_id','lot_ids','qty_done','qty_lot', 'uom_id']
     );
+    StockMoveLineCollection moveLines = StockMoveLineCollection();
     if (!result.hasError()) {
       // TODO: Get Move Line ids
       var decoded = decodedResult(result);
-      StockMoveLineCollection moveLines = StockMoveLineCollection();
       for(var rec in decoded) {
         StockMoveLine moveLine = StockMoveLine(
           id: rec['id'],
         );
-        moveLine.product = await mapProduct(rec['product_id']);
-        moveLine.lotIds = await mapLotId(rec['lot_ids']);
+        moveLine.setProduct = rec['product_id'];
         moveLines.add(moveLine);
       }
       return moveLines;
     } else {
-      return false;
+      return moveLines;
     }
   }
 
@@ -136,14 +135,11 @@ class FetchWorkOrderSuccess extends FetchDataState {
   }
 
   Future<dynamic> mapProduct(id) async {
-    print('>>>>>> 1');
-    print(id);
     var result = await _odooClient.searchRead(
         'product.product',
         [['id', '=', id]],
         ['id','name']
     );
-    print(result);
     if (!result.hasError()) {
       var decoded = decodedResult(result);
       ProductProduct product = ProductProduct(

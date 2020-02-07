@@ -139,6 +139,7 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
                                     arguments: WorkOrderArgument(
                                       id: snapshot.data.datas[index].id,
                                       name: snapshot.data.datas[index].name,
+                                      activeMoveLineIds: snapshot.data.datas[index].activeMoveLineIds
                                     )
                                   );
                                 },
@@ -191,7 +192,7 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
           );
         } else {
           return Container(
-            child: Text('xxx'),
+            child: Text('Loading ...'),
           );
         }
       },

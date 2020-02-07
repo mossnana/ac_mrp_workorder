@@ -15,6 +15,7 @@ class WorkOrderFormScreen extends StatefulWidget {
 }
 
 class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
+  var moveLines;
 
   @override
   void initState() {
@@ -26,15 +27,22 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
   @override
   Widget build(BuildContext context) {
     final WorkOrderArgument args = ModalRoute.of(context).settings.arguments;
+    final movesList = args.activeMoveLineIds;
+
+    Widget x(index)  => args.activeMoveLineIds.count() != 0 ? Text(args.activeMoveLineIds.datas[index].product.name) : Text('Loading');
+
+    Widget _myListView = movesList.count() != 0 ? ListView.builder(
+      itemCount: movesList.count(),
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(movesList.datas[index].product.name),
+        );
+      },
+    ) : Text('No Data');
+
     return Scaffold(
       body: Center(
-        child: Row(
-          children: <Widget>[
-            Text('Args'),
-            Text(args.id.toString()),
-            Text(args.name)
-          ],
-        ),
+        child: _myListView
       ),
     );
   }

@@ -16,7 +16,6 @@ class _ContainerX extends State<ContainerX> {
     Widget _Container = BlocBuilder<FetchUserBloc, FetchDataState>(
       bloc: BlocProvider.of<FetchUserBloc>(context),
       builder: (context, state) {
-        print(state);
         if(state is FetchUserSuccess) {
           return Container(
               child: StreamBuilder(
@@ -25,7 +24,6 @@ class _ContainerX extends State<ContainerX> {
                   if(snapshot.hasError) {
                     return Text('SnapShot Error');
                   } else if(snapshot.hasData) {
-                    print(snapshot.data);
                     return Text(snapshot.data['name']);
                   } else {
                     return Text("Loading ... in Stream Builder");

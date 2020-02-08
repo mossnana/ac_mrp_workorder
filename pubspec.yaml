@@ -28,6 +28,8 @@ dependencies:
   equatable:
   odoo_api:
   meta:
+  # QR Code Scanner
+  barcode_scan:
 
 dev_dependencies:
   flutter_test:

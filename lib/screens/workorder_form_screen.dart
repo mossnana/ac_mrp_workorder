@@ -1,8 +1,10 @@
-
+import 'package:ac_mrp_workorder/blocs/write_data/write_data_bloc.dart';
+import 'package:ac_mrp_workorder/blocs/write_data/write_data_event.dart';
 import 'package:ac_mrp_workorder/models/navigate_arguments.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:odoo_api/odoo_api.dart';
 
 class WorkOrderFormScreen extends StatefulWidget {
@@ -34,6 +36,7 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
       setState((){
         this.barcode = barcode;
       });
+      await BlocProvider.of<WriteStockMoveLineBloc>(context).add(WriteStockMoveLineStarted(id: id, lot_id: int.parse(this.barcode)));
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         // The user did not grant the camera permission.
@@ -119,7 +122,6 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
                                   fontSize: 15,
                                   color: Color.fromARGB(255, 48, 48, 54)
                               ),),
-
                             ),
                           )
                         ],

@@ -1,3 +1,5 @@
+import 'package:ac_mrp_workorder/blocs/write_data/write_data_bloc.dart';
+import 'package:ac_mrp_workorder/blocs/write_data/write_data_event.dart';
 import 'package:ac_mrp_workorder/delegates/bloc_delegate.dart';
 import 'package:ac_mrp_workorder/screens/workorder_form_screen.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +14,7 @@ import './widgets/loading.dart';
 void main() {
   /* BloC Delegate for check State Change */
   // BlocSupervisor.delegate = AppBlocDelegate();
+  // MARK: Change URL Server Here
   final userRepository = OdooClient('http://erp.naraipak.com');
   runApp(
     BlocProvider<AuthenticationBloc>(
@@ -50,13 +53,21 @@ class App extends StatelessWidget {
             return SplashPage();
           },
         ),
-        '/workOrderItem': (context) => BlocBuilder<AuthenticationBloc, AuthenticationState>(
-          builder: (context, state) {
-            if (state is AuthenticationAuthenticated) {
-              return WorkOrderFormScreen(userRepository: userRepository);
-            }
-            return SplashPage();
-          },
+        '/workOrderItem': (context) => MultiBlocProvider(
+          providers: [
+            BlocProvider<WriteStockMoveLineBloc>(
+              create: (BuildContext context) =>
+              WriteStockMoveLineBloc(odooClient: userRepository),
+            ),
+          ],
+          child: BlocBuilder<AuthenticationBloc, AuthenticationState>(
+            builder: (context, state) {
+              if (state is AuthenticationAuthenticated) {
+                return WorkOrderFormScreen(userRepository: userRepository);
+              }
+              return SplashPage();
+            },
+          ),
         ),
       },
     );

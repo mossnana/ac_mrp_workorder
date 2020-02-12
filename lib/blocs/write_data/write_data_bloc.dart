@@ -18,7 +18,7 @@ class WriteStockMoveLineBloc extends Bloc<WriteDataEvent, WriteDataState> {
   Stream<WriteDataState> mapEventToState(WriteDataEvent event) async* {
     if(event is WriteStockMoveLineStarted) {
       yield WriteStockMoveLineLoading();
-      var res = await _odooClient.callKW('stock.move.line', 'add_new_line', [[event.id], event.lot_id]);
+      var res = await _odooClient.callKW('stock.move.line', 'add_new_line_mobile_app', [[event.id], event.lot_id]);
       if(!res.hasError()) {
         yield WriteStockMoveLineSuccess();
       } else {

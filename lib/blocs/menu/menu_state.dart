@@ -11,5 +11,3 @@ class MenuState extends Equatable {
 class HomeMenuState extends MenuState {}
 
 class WorkOrderMenuState extends MenuState {}
-
-// TODO: Menu State

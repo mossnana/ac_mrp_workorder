@@ -80,10 +80,11 @@ class StockMoveLine extends Document {
   StockProductionLotCollection lotIds;
   ProductProduct product = new ProductProduct();
   dynamic qtyDone;
+  bool scanned = false;
 
   StockMoveLine({
     @required this.id,
-    this.qtyDone,
+    this.qtyDone
   });
 
   set setProduct(productList) {
@@ -110,6 +111,7 @@ class MrpWorkOrder extends Document {
   int id;
   String name;
   String state;
+  String manufacturingOrderName;
   MaterialColor stateColor;
   int workCenterId;
   List<dynamic> productId;
@@ -121,6 +123,7 @@ class MrpWorkOrder extends Document {
     this.workCenterId,
     this.productId,
     this.state,
+    this.manufacturingOrderName,
   });
 
   set setStateColor(state) {

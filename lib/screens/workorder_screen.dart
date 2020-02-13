@@ -114,17 +114,24 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
                                       snapshot.data.datas[index].id.toString()),
                                   alignment: Alignment.center,
                                   color: snapshot.data.datas[index].stateColor,
-                                  // child: Text(snapshot.data.datas[index].name),
                                   child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: <Widget>[
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
                                           Text(
                                             snapshot.data.datas[index].name,
                                             style: TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 20
+                                            ),
+                                          ),
+                                          Text(
+                                            snapshot.data.datas[index].manufacturingOrderName,
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10
                                             ),
                                           ),
                                         ],

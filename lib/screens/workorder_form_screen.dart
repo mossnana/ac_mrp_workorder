@@ -29,14 +29,14 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
   }
 
 
-  Future scan(int id) async {
+  Future scan(int id, int product_id) async {
     try {
       String barcode = await BarcodeScanner.scan();
       print("Scanner Code : $barcode, Move Line ID : $id");
       setState((){
         this.barcode = barcode;
       });
-      await BlocProvider.of<WriteStockMoveLineBloc>(context).add(WriteStockMoveLineStarted(id: id, lot_id: int.parse(this.barcode)));
+      await BlocProvider.of<WriteStockMoveLineBloc>(context).add(WriteStockMoveLineStarted(id: id, lot_name: this.barcode, product_id: product_id));
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         // The user did not grant the camera permission.
@@ -54,6 +54,9 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
   Widget build(BuildContext context) {
     final WorkOrderArgument args = ModalRoute.of(context).settings.arguments;
     final movesList = args.activeMoveLineIds;
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    List<int> scannedIndex = [];
 
     Widget _myListView = movesList.count() != 0 ? ListView.builder(
       itemCount: movesList.count(),
@@ -69,7 +72,7 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
             ),
           ),
           onDismissed: (direction) {
-            scan(movesList.datas[index].id);
+            scan(movesList.datas[index].id, movesList.datas[index].product.id);
             setState(() {
               movesList.datas.removeAt(index);
             });
@@ -82,59 +85,56 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
               child: Row(
                 children: <Widget>[
                   Container(
-                    height: 100.0,
-                    width: 70.0,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(5),
-                            topLeft: Radius.circular(5)
-                        ),
-                        image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage("https://i.imgur.com/TQAOVkUb.jpg")
-                        )
-                    ),
-                  ),
-                  Container(
                     height: 100,
+                    width: width * 0.8,
                     child: Padding(
                       padding: EdgeInsets.fromLTRB(10, 2, 0, 0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
-                          Text(movesList.datas[index].product.name),
+                          Flexible(child: Text(movesList.datas[index].product.name, softWrap: true,)),
                           Padding(
                             padding: EdgeInsets.fromLTRB(0, 3, 0, 3),
-                            child: Container(
-                              width: 30,
-                              decoration: BoxDecoration(
-                                  border: Border.all(color: Colors.teal),
-                                  borderRadius: BorderRadius.all(Radius.circular(10))
-                              ),
-                              child: Text("Draft",textAlign: TextAlign.center,),
+                            child: movesList.datas[index].scanned ? Container(
+                              width: width * 0.5,
+                              height: 20,
+                              color: Colors.green,
+                              child: Text("Scanned",textAlign: TextAlign.center, style: TextStyle(color: Colors.white),),
+                            ) : Container(
+                              width: width * 0.5,
+                              height: 20,
+                              color: Colors.deepOrange,
+                              child: Text("Ready to Scan",textAlign: TextAlign.center, style: TextStyle(color: Colors.white),),
                             ),
                           ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 5, 0, 2),
-                            child: Container(
-                              width: 260,
-                              child: Text("Test Test",style: TextStyle(
-                                  fontSize: 15,
-                                  color: Color.fromARGB(255, 48, 48, 54)
-                              ),),
-                            ),
-                          )
                         ],
                       ),
                     ),
-                  )
+                  ),
+                  Container(
+                    child: IconButton(
+                      icon: Icon(Icons.camera_alt),
+                      iconSize: width * 0.1,
+                      onPressed: () {
+                        try {
+                          scan(movesList.datas[index].id, movesList.datas[index].product.id);
+                          movesList.datas[index].scanned = true;
+                          setState(() {
+                            scannedIndex.add(index);
+                          });
+                        } catch(e) {
+                          print(e);
+                        }
+                      },
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         );
 
-       /* return ListTile(
+        /* return ListTile(
           title: Text(movesList.datas[index].product.name),
         );*/
 
@@ -142,8 +142,8 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
     ) : Text('No Data');
 
     return Scaffold(
-      appBar: new AppBar(
-        title: new Text('Move Line Scanner'),
+      appBar: AppBar(
+        title: Text('Move Line Scanner'),
       ),
       body: Center(
         child: _myListView,

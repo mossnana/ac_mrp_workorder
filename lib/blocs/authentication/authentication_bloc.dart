@@ -24,7 +24,6 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
       ) async* {
     if (event is AppStarted) {
       final hasToken = await userRepository.getSessionInfo();
-      print(hasToken);
       if (!hasToken.hasError()) {
         final odooUser = await userRepository.odooUser;
         yield AuthenticationAuthenticated(odooUser: odooUser, odooClient: userRepository);

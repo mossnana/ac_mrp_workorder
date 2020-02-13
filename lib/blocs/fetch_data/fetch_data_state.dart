@@ -49,25 +49,16 @@ class FetchWorkOrderSuccess extends FetchDataState {
   @override
   String toString() => 'Fetch Work Orders Data Success ...';
 
-  Stream<dynamic> readAllTest() async* {
-    var result = await _odooClient.searchRead('mrp.workorder', [], ['id','name'], limit: 1);
-    if (!result.hasError()) {
-      var decoded = decodedResult(result);
-      yield decoded;
-    } else {
-      print("Can't Streaming data from server.");
-    }
-  }
-
   Stream<dynamic> readAll() async* {
     var result = await _odooClient.searchRead(
         'mrp.workorder',
         [['state','in',['ready','progress']]],
-        ['id','name','active_move_line_ids','qty_produced','workcenter_id','product_id', 'state'],
+        ['id','name','active_move_line_ids','qty_produced','workcenter_id','product_id', 'state', 'production_id'],
     );
     MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
     if (!result.hasError()) {
       var decoded = decodedResult(result);
+      print(decoded);
       yield decoded;
       for(var rec in decoded) {
         MrpWorkOrder workOrder = MrpWorkOrder(
@@ -75,6 +66,7 @@ class FetchWorkOrderSuccess extends FetchDataState {
           name: rec['name'],
           productId: rec['product_id'],
           state: rec['state'],
+          manufacturingOrderName: rec['production_id'][1]
         );
         workOrder.setStateColor = rec['state'];
         workOrder.activeMoveLineIds = await mapStockMoveLine(rec['active_move_line_ids']);
@@ -94,7 +86,6 @@ class FetchWorkOrderSuccess extends FetchDataState {
     );
     StockMoveLineCollection moveLines = StockMoveLineCollection();
     if (!result.hasError()) {
-      // TODO: Get Move Line ids
       var decoded = decodedResult(result);
       for(var rec in decoded) {
         StockMoveLine moveLine = StockMoveLine(
@@ -110,7 +101,6 @@ class FetchWorkOrderSuccess extends FetchDataState {
   }
 
   Future<dynamic> mapLotId(ids) async {
-    // TODO: Get Lot data
     var result = await _odooClient.searchRead(
         'stock.move.line',
         [['id', 'in', ids]],

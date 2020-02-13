@@ -42,11 +42,11 @@ class _LoginFormState extends State<LoginForm> {
             child: Column(
               children: [
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'username'),
+                  decoration: InputDecoration(labelText: 'Username'),
                   controller: _usernameController,
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'password'),
+                  decoration: InputDecoration(labelText: 'Password'),
                   controller: _passwordController,
                   obscureText: true,
                 ),

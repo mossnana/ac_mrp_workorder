@@ -13,9 +13,10 @@ abstract class WriteDataEvent extends Equatable {
 // Write Stock Move Line Event
 class WriteStockMoveLineStarted extends WriteDataEvent {
   final int id;
-  final int lot_id;
+  final String lot_name;
+  final int product_id;
 
-  const WriteStockMoveLineStarted({this.id, this.lot_id});
+  const WriteStockMoveLineStarted({this.id, this.lot_name, this.product_id});
 }
 
 class WriteStockMoveLineFinished extends WriteDataEvent {}

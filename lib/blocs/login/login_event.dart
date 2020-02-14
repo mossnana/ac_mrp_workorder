@@ -6,14 +6,16 @@ abstract class LoginEvent extends Equatable {
 }
 
 class LoginButtonPressed extends LoginEvent {
-  final String username;
-  final String password;
+  String username;
+  String password;
   final String db;
+  final String employeeCode;
 
-  const LoginButtonPressed({
-    @required this.username,
-    @required this.password,
+  LoginButtonPressed({
+    this.username,
+    this.password,
     @required this.db,
+    @required this.employeeCode,
   });
 
   @override

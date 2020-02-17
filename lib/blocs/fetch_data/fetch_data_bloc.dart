@@ -43,7 +43,7 @@ class FetchWorkOrderBloc extends Bloc<FetchDataEvent, FetchDataState> {
   Stream<FetchDataState> mapEventToState(FetchDataEvent event) async* {
     if(event is FetchWorkOrderStarted) {
       yield FetchWorkOrderLoading();
-      if(true) {
+      if(_odooClient.getSessionInfo() != null) {
         yield FetchWorkOrderSuccess(odooClient: _odooClient);
       } else {
         yield FetchWorkOrderFailed();

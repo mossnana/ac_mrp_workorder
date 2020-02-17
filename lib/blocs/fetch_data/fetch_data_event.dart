@@ -1,6 +1,4 @@
-import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
-import 'package:odoo_api/odoo_api.dart';
 
 abstract class FetchDataEvent extends Equatable {
   const FetchDataEvent();

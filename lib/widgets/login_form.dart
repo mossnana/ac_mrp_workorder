@@ -10,8 +10,6 @@ class LoginForm extends StatefulWidget {
 }
 
 class _LoginFormState extends State<LoginForm> {
-  final _usernameController = TextEditingController();
-  final _passwordController = TextEditingController();
   List<dynamic> _databases = [];
   String selectedDatabase = "";
 

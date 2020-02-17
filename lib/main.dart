@@ -12,8 +12,6 @@ import './screens/login_screen.dart';
 import './widgets/loading.dart';
 
 void main() {
-  /* BloC Delegate for check State Change */
-  // BlocSupervisor.delegate = AppBlocDelegate();
   // MARK: Change URL Server Here
   final userRepository = OdooClient('http://erp.naraipak.com');
   runApp(

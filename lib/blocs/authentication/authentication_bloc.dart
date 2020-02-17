@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:odoo_api/odoo_api.dart';
 import 'package:odoo_api/odoo_api_connector.dart';
-import 'package:odoo_api/odoo_user_response.dart';
 
 import 'authentication_event.dart';
 import 'authentication_state.dart';
@@ -25,7 +24,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
     if (event is AppStarted) {
       final hasToken = await userRepository.getSessionInfo();
       if (!hasToken.hasError()) {
-        final odooUser = await userRepository.odooUser;
+        final odooUser = userRepository.odooUser;
         yield AuthenticationAuthenticated(odooUser: odooUser, odooClient: userRepository);
       } else {
         yield AuthenticationUnauthenticated();
@@ -34,7 +33,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
 
     if (event is LoggedIn) {
       yield AuthenticationLoading();
-      final odooUser = await userRepository.odooUser;
+      final odooUser = userRepository.odooUser;
       yield AuthenticationAuthenticated(odooUser: odooUser, odooClient: userRepository);
     }
 

@@ -28,11 +28,9 @@ class WriteStockMoveLineBloc extends Bloc<WriteDataEvent, WriteDataState> {
   Stream<WriteDataState> mapEventToState(WriteDataEvent event) async* {
     if(event is WriteStockMoveLineStarted) {
       yield WriteStockMoveLineLoading();
-      // FIXME: Search Lot Name
       var lotNameSearchResult = await _odooClient.searchRead('stock.production.lot', [['name','=',event.lot_name], ['product_id','=',event.product_id]], ['id']);
       if(!lotNameSearchResult.hasError()) {
         var lotIds = decodedResult(lotNameSearchResult);
-        print(lotIds);
         if(lotIds.length != 0) {
           var res = await _odooClient.callKW('stock.move.line', 'add_new_line_mobile_app', [[event.id], lotIds[0]['id']]);
           if(!res.hasError()) {

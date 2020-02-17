@@ -85,78 +85,86 @@ class _WorkOrderScreen extends State<WorkOrderScreen> {
                 switch (snapshot.connectionState) {
                   case ConnectionState.done:
                     {
-                      return CustomScrollView(slivers: <Widget>[
-                        SliverAppBar(
-                          pinned: true,
-                          expandedHeight: 150.0,
-                          flexibleSpace: FlexibleSpaceBar(
-                            background: Image.network(
-                                'http://naraipak.com/uploads/about/TKy31M7S05PEsStaPKamS1YjGVpCsZLt.png',
-                                fit: BoxFit.cover),
-                            title: Text('Work Orders'),
+                      if(snapshot.data.datas.length != 0) {
+                        return CustomScrollView(slivers: <Widget>[
+                          SliverAppBar(
+                            pinned: true,
+                            expandedHeight: 150.0,
+                            flexibleSpace: FlexibleSpaceBar(
+                              background: Image.network(
+                                  'http://naraipak.com/uploads/about/TKy31M7S05PEsStaPKamS1YjGVpCsZLt.png',
+                                  fit: BoxFit.cover),
+                              title: Text('Work Orders'),
+                            ),
                           ),
-                        ),
-                        SliverGrid(
-                          gridDelegate:
-                              SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 500.0,
-                            mainAxisSpacing: 10.0,
-                            crossAxisSpacing: 10.0,
-                            childAspectRatio: 2.0,
-                          ),
-                          delegate: SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                              return GestureDetector(
-                                child: Container(
-                                  margin: EdgeInsets.all(10.0),
-                                  padding: EdgeInsets.all(10.0),
-                                  key: Key(
-                                      snapshot.data.datas[index].id.toString()),
-                                  alignment: Alignment.center,
-                                  color: snapshot.data.datas[index].stateColor,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      Column(
+                          SliverGrid(
+                            gridDelegate:
+                            SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 500.0,
+                              mainAxisSpacing: 10.0,
+                              crossAxisSpacing: 10.0,
+                              childAspectRatio: 2.0,
+                            ),
+                            delegate: SliverChildBuilderDelegate(
+                                  (BuildContext context, int index) {
+                                if(snapshot.data != null) {
+                                  return GestureDetector(
+                                    child: Container(
+                                      margin: EdgeInsets.all(10.0),
+                                      padding: EdgeInsets.all(10.0),
+                                      key: Key(
+                                          snapshot.data.datas[index].id.toString()),
+                                      alignment: Alignment.center,
+                                      color: snapshot.data.datas[index].stateColor,
+                                      child: Column(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: <Widget>[
-                                          Text(
-                                            snapshot.data.datas[index].name,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20
-                                            ),
-                                          ),
-                                          Text(
-                                            snapshot.data.datas[index].manufacturingOrderName,
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10
-                                            ),
+                                          Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: <Widget>[
+                                              Text(
+                                                snapshot.data.datas[index].name,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 20
+                                                ),
+                                              ),
+                                              Text(
+                                                snapshot.data.datas[index].manufacturingOrderName,
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                onTap: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/workOrderItem',
-                                    arguments: WorkOrderArgument(
-                                      id: snapshot.data.datas[index].id,
-                                      name: snapshot.data.datas[index].name,
-                                      activeMoveLineIds: snapshot.data.datas[index].activeMoveLineIds
-                                    )
+                                    ),
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                          context,
+                                          '/workOrderItem',
+                                          arguments: WorkOrderArgument(
+                                              id: snapshot.data.datas[index].id,
+                                              name: snapshot.data.datas[index].name,
+                                              activeMoveLineIds: snapshot.data.datas[index].activeMoveLineIds
+                                          )
+                                      );
+                                    },
                                   );
-                                },
-                              );
-                            },
-                            // childCount: snapshot.data.length,
-                            childCount: snapshot.data.datas.length,
-                          ),
-                        )
-                      ]);
+                                } else {
+                                  return Container();
+                                }
+                              },
+                              // childCount: snapshot.data.length,
+                              childCount: snapshot.data != null ? snapshot.data.datas.length:0,
+                            ),
+                          )
+                        ]);
+                      } else {
+                        return Center(child: Text('Loading ...'),);
+                      }
                     }
                     break;
                   default:

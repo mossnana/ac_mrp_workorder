@@ -28,11 +28,9 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
     super.initState();
   }
 
-
   Future scan(int id, int product_id) async {
     try {
       String barcode = await BarcodeScanner.scan();
-      print("Scanner Code : $barcode, Move Line ID : $id");
       setState((){
         this.barcode = barcode;
       });
@@ -133,11 +131,6 @@ class _WorkOrderFormScreen extends State<WorkOrderFormScreen> {
             ),
           ),
         );
-
-        /* return ListTile(
-          title: Text(movesList.datas[index].product.name),
-        );*/
-
       },
     ) : Text('No Data');
 

@@ -58,7 +58,6 @@ class FetchWorkOrderSuccess extends FetchDataState {
     MrpWorkOrderCollection workOrderIds = MrpWorkOrderCollection();
     if (!result.hasError()) {
       var decoded = decodedResult(result);
-      print(decoded);
       yield decoded;
       for(var rec in decoded) {
         MrpWorkOrder workOrder = MrpWorkOrder(
@@ -180,7 +179,7 @@ class FetchUserSuccess extends FetchDataState {
   List<Object> get props => [];
 
   Stream<dynamic> info() async* {
-    var odooUserResponse = await _odooUser;
+    var odooUserResponse = _odooUser;
     yield {
       'uid': odooUserResponse.uid,
       'name': odooUserResponse.name,

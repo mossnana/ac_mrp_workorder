@@ -28,8 +28,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event is LoginButtonPressed) {
       yield LoginLoading();
       try {
-        print(event.db);
-        print(event.employeeCode);
         var response = await userRepository.authenticateWithMobileApp(
           event.db, event.employeeCode
         );
@@ -39,7 +37,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         } else {
           yield LoginFailure(error: 'Wrong Login or Password');
         }
-
       } catch (error) {
         yield LoginFailure(error: "Can't connect to server");
       }
@@ -56,7 +53,6 @@ extension on OdooClient {
       "employee_code": employeeCode,
     };
     final response = await callRequest(url, createPayload(params));
-    print(url);
     final session = await getSessionInfo();
     final authCallBack = new AuthenticateCallback(!response.hasError(), response, session.getSessionId());
     odooUser = authCallBack.getUser();
